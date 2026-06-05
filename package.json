@@ -1,0 +1,33 @@
+{
+  "name": "ainj",
+  "version": "0.0.0",
+  "description": "An AI SDK for Injective",
+  "keywords": [
+    "injective",
+    "AI",
+    "agent-skills",
+    "skills",
+    "MCP",
+    "CLI",
+    "SDK"
+  ],
+  "homepage": "https://github.com/bguiz/ainj#readme",
+  "bugs": {
+    "url": "https://github.com/bguiz/ainj/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bguiz/ainj.git"
+  },
+  "license": "MIT",
+  "author": "bguiz",
+  "type": "module",
+  "main": "src/ainj.js",
+  "files": [
+    "/src/ainj.js"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "list-files": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz"
+  }
+}
