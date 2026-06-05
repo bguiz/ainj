@@ -1,16 +1,8 @@
 {
   "name": "ainj",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "An AI SDK for Injective",
-  "keywords": [
-    "injective",
-    "AI",
-    "agent-skills",
-    "skills",
-    "MCP",
-    "CLI",
-    "SDK"
-  ],
+  "keywords": ["injective", "AI", "agent-skills", "skills", "MCP", "CLI", "SDK"],
   "homepage": "https://github.com/bguiz/ainj#readme",
   "bugs": {
     "url": "https://github.com/bguiz/ainj/issues"
@@ -22,12 +14,23 @@
   "license": "MIT",
   "author": "bguiz",
   "type": "module",
-  "main": "src/ainj.js",
-  "files": [
-    "/src/ainj.js"
-  ],
+  "bin": {
+    "ainj": "src/cli/index.js"
+  },
+  "main": "src/lib/ainj.js",
+  "files": ["src/"],
+  "dependencies": {
+    "@clack/prompts": "0.9.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "c8": "10.1.3"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test",
+    "lint": "biome check .",
+    "sync:skills": "node scripts/sync-skills.js",
+    "postinstall": "node src/install/index.js",
     "list-files": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz"
   }
 }
