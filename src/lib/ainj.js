@@ -1,1 +1,1 @@
-// library entry — implemented in V4
+export { cli } from './cli.js';

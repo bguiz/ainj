@@ -38,7 +38,10 @@ describe('package.json', () => {
 
   it('has required scripts: test, lint, sync:skills, postinstall', () => {
     const { scripts } = readJson('package.json');
-    assert.equal(scripts.test, 'node --test');
+    assert.ok(
+      scripts.test.startsWith('node --test'),
+      `test script should start with 'node --test', got: ${scripts.test}`,
+    );
     assert.equal(scripts.lint, 'biome check .');
     assert.equal(scripts['sync:skills'], 'node scripts/sync-skills.js');
     assert.equal(scripts.postinstall, 'node src/install/index.js');

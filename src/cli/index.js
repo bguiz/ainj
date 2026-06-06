@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 import { route } from './router.js';
+import { loadEnv } from '../env.js';
+
+loadEnv();
 
 const USAGE = `Usage: ainj <command> [args...]
 
