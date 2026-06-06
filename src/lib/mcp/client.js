@@ -1,4 +1,4 @@
-import { spawnServer } from './spawn.js';
+import { resolveServer } from './spawn.js';
 import { connectStdio, connectHttp } from './connect.js';
 
 const INITIAL = 'INITIAL';
@@ -8,7 +8,6 @@ const CONNECTED = 'CONNECTED';
 export class McpClient {
   #state = INITIAL;
   #client = null;
-  #serverProcess = null;
   #bin;
 
   constructor(bin) {
@@ -19,16 +18,14 @@ export class McpClient {
 
   async start() {
     if (this.#state !== INITIAL) throw new Error(`Cannot start(): current state is ${this.#state}`);
-    this.#serverProcess = spawnServer(this.#bin);
-    this.#client = await connectStdio(this.#serverProcess);
+    const { command, args } = resolveServer(this.#bin);
+    this.#client = await connectStdio(command, args);
     this.#state = MANAGED;
   }
 
   async stop() {
     if (this.#state !== MANAGED) throw new Error(`Cannot stop(): current state is ${this.#state}`);
-    this.#serverProcess.kill();
     await this.#client.close();
-    this.#serverProcess = null;
     this.#client = null;
     this.#state = INITIAL;
   }
@@ -58,6 +55,9 @@ export class McpClient {
     }
     if (typeof params !== 'object') {
       throw new TypeError(`toolCall params must be a plain JSON object; got ${typeof params}`);
+    }
+    if (name === 'tools/list') {
+      return this.#client.listTools(params);
     }
     return this.#client.callTool({ name, arguments: params });
   }

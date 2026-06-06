@@ -5,20 +5,14 @@ import { describe, it, mock, before, after } from 'node:test';
 // Mock dependencies — mocked before client.js is imported
 // ---------------------------------------------------------------------------
 
-const mockProcess = {
-  kill: mock.fn(),
-  stdin: {},
-  stdout: {},
-  stderr: {},
-};
-
 const mockClientInstance = {
   connect: mock.fn(async () => {}),
   callTool: mock.fn(async () => ({ content: [{ type: 'text', text: 'ok' }] })),
+  listTools: mock.fn(async () => ({ tools: [{ name: 'foo', description: 'bar', inputSchema: {} }] })),
   close: mock.fn(async () => {}),
 };
 
-const spawnServerMock = mock.fn(() => mockProcess);
+const resolveServerMock = mock.fn(() => ({ command: 'ainj', args: ['mcp', 'main', 'stdio'] }));
 const connectStdioMock = mock.fn(async () => mockClientInstance);
 const connectHttpMock = mock.fn(async () => mockClientInstance);
 
@@ -26,7 +20,7 @@ let McpClient;
 
 before(async () => {
   mock.module('./spawn.js', {
-    namedExports: { spawnServer: spawnServerMock },
+    namedExports: { resolveServer: resolveServerMock },
   });
   mock.module('./connect.js', {
     namedExports: { connectStdio: connectStdioMock, connectHttp: connectHttpMock },
@@ -56,14 +50,14 @@ describe('McpClient initial state', () => {
 
 describe("start()", () => {
   it("transitions INITIAL → MANAGED", async () => {
-    spawnServerMock.mock.resetCalls();
+    resolveServerMock.mock.resetCalls();
     connectStdioMock.mock.resetCalls();
     const client = new McpClient('main');
 
     await client.start();
 
     assert.equal(client.state, 'MANAGED');
-    assert.equal(spawnServerMock.mock.callCount(), 1);
+    assert.equal(resolveServerMock.mock.callCount(), 1);
     assert.equal(connectStdioMock.mock.callCount(), 1);
   });
 });
@@ -73,8 +67,7 @@ describe("start()", () => {
 // ---------------------------------------------------------------------------
 
 describe("stop()", () => {
-  it("transitions MANAGED → INITIAL and calls kill() on the subprocess", async () => {
-    mockProcess.kill.mock.resetCalls();
+  it("transitions MANAGED → INITIAL and closes the client", async () => {
     mockClientInstance.close.mock.resetCalls();
     const client = new McpClient('main');
     await client.start();
@@ -82,7 +75,7 @@ describe("stop()", () => {
     await client.stop();
 
     assert.equal(client.state, 'INITIAL');
-    assert.equal(mockProcess.kill.mock.callCount(), 1);
+    assert.equal(mockClientInstance.close.mock.callCount(), 1);
   });
 });
 
@@ -120,35 +113,52 @@ describe("disconnect()", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cycles 6–7 — toolCall() returns result in MANAGED and CONNECTED states
+// Cycles 6–9 — toolCall() routing in MANAGED and CONNECTED states
 // ---------------------------------------------------------------------------
 
-describe("toolCall() in MANAGED state", () => {
-  it("returns the result from the underlying client", async () => {
+describe("toolCall('tools/list') in MANAGED state", () => {
+  it("calls listTools(), not callTool()", async () => {
+    mockClientInstance.listTools.mock.resetCalls();
     mockClientInstance.callTool.mock.resetCalls();
     const client = new McpClient('main');
     await client.start();
 
     const result = await client.toolCall('tools/list', {});
 
+    assert.equal(mockClientInstance.listTools.mock.callCount(), 1);
+    assert.equal(mockClientInstance.callTool.mock.callCount(), 0);
+    assert.ok(result.tools);
+  });
+});
+
+describe("toolCall(toolName) in MANAGED state", () => {
+  it("calls callTool() with name and arguments", async () => {
+    mockClientInstance.callTool.mock.resetCalls();
+    const client = new McpClient('main');
+    await client.start();
+
+    const result = await client.toolCall('inject_tokens', { amount: 1 });
+
     assert.equal(mockClientInstance.callTool.mock.callCount(), 1);
     const args = mockClientInstance.callTool.mock.calls[0].arguments[0];
-    assert.equal(args.name, 'tools/list');
-    assert.deepEqual(args.arguments, {});
+    assert.equal(args.name, 'inject_tokens');
+    assert.deepEqual(args.arguments, { amount: 1 });
     assert.ok(result.content);
   });
 });
 
-describe("toolCall() in CONNECTED state", () => {
-  it("returns the result from the underlying client", async () => {
+describe("toolCall('tools/list') in CONNECTED state", () => {
+  it("calls listTools(), not callTool()", async () => {
+    mockClientInstance.listTools.mock.resetCalls();
     mockClientInstance.callTool.mock.resetCalls();
     const client = new McpClient('main');
     await client.connect('http://localhost:3001/mcp');
 
     const result = await client.toolCall('tools/list', {});
 
-    assert.equal(mockClientInstance.callTool.mock.callCount(), 1);
-    assert.ok(result.content);
+    assert.equal(mockClientInstance.listTools.mock.callCount(), 1);
+    assert.equal(mockClientInstance.callTool.mock.callCount(), 0);
+    assert.ok(result.tools);
   });
 });
 
@@ -207,7 +217,7 @@ describe("toolCall() guards", () => {
     mockClientInstance.callTool.mock.resetCalls();
     const client = new McpClient('main');
     await client.start();
-    await client.toolCall('tools/list', undefined);
+    await client.toolCall('inject_tokens', undefined);
     const args = mockClientInstance.callTool.mock.calls[0].arguments[0];
     assert.deepEqual(args.arguments, {});
   });

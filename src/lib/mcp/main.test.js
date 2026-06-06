@@ -5,7 +5,7 @@ import { describe, it, mock, before, after } from 'node:test';
 // Cycle 21 — main and docs are independent McpClient instances
 // ---------------------------------------------------------------------------
 
-const spawnServerMock = mock.fn(() => ({ kill: mock.fn(), stdin: {}, stdout: {} }));
+const resolveServerMock = mock.fn(() => ({ command: 'ainj', args: ['mcp', 'main', 'stdio'] }));
 const connectStdioMock = mock.fn(async () => ({
   connect: mock.fn(async () => {}),
   callTool: mock.fn(async () => ({ content: [] })),
@@ -22,7 +22,7 @@ let docs;
 let McpClient;
 
 before(async () => {
-  mock.module('./spawn.js', { namedExports: { spawnServer: spawnServerMock } });
+  mock.module('./spawn.js', { namedExports: { resolveServer: resolveServerMock } });
   mock.module('./connect.js', { namedExports: { connectStdio: connectStdioMock, connectHttp: connectHttpMock } });
 
   ({ McpClient } = await import('./client.js'));
