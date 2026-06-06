@@ -176,3 +176,23 @@ describe('src/lib/ainj.js re-exports cli', () => {
     assert.equal(typeof cliFromAinj, 'function');
   });
 });
+
+describe('src/lib/ainj.js exports mcp', () => {
+  it('mcp has main and docs properties', async () => {
+    const { mcp } = await import('./ainj.js');
+    assert.ok(mcp, 'mcp should be exported');
+    assert.ok('main' in mcp, 'mcp should have main');
+    assert.ok('docs' in mcp, 'mcp should have docs');
+  });
+
+  it('mcp.main and mcp.docs start in INITIAL state (are McpClient instances)', async () => {
+    const { mcp } = await import('./ainj.js');
+    assert.equal(mcp.main.state, 'INITIAL');
+    assert.equal(mcp.docs.state, 'INITIAL');
+  });
+
+  it('mcp.main and mcp.docs are different objects', async () => {
+    const { mcp } = await import('./ainj.js');
+    assert.notEqual(mcp.main, mcp.docs);
+  });
+});
