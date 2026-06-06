@@ -1,0 +1,35 @@
+name: Skill Sync
+
+on:
+  pull_request:
+    paths:
+      - ainj.config.json
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Sync skills
+        run: node scripts/sync-skills.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit updated skills
+        run: |
+          git config user.name "Brendan Graetz"
+          git config user.email "bguiz@users.noreply.github.com"
+          git add .agents/skills/
+          git diff --cached --quiet || git commit -m "chore: sync skills from ainj.config.json [skip ci]"
+          git push

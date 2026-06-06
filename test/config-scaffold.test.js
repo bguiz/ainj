@@ -60,9 +60,9 @@ describe('package.json', () => {
 });
 
 describe('ainj.config.json', () => {
-  it('contains { skillsRef: "main" }', () => {
+  it('contains { skillsRef: "master" }', () => {
     const config = readJson('ainj.config.json');
-    assert.equal(config.skillsRef, 'main');
+    assert.equal(config.skillsRef, 'master');
   });
 });
 
