@@ -1,6 +1,6 @@
 {
   "name": "ainj",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "An AI SDK for Injective",
   "keywords": [
     "injective",
@@ -27,13 +27,14 @@
   },
   "main": "src/lib/ainj.js",
   "files": [
-    "src/"
+    "src/",
+    "!src/**/*.test.js"
   ],
   "dependencies": {
     "@clack/prompts": "0.9.1",
     "@injective-agent/core": "github:InjectiveLabs/mcp-server",
-    "injective-core": "^1.18.0",
-    "smol-toml": "^1.6.1"
+    "injective-core": "1.18.0",
+    "smol-toml": "1.6.1"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
