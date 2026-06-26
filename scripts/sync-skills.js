@@ -50,12 +50,13 @@ export async function syncSkills({
       throw new Error(`git clone failed (exit ${result.status}): ${stderr}`);
     }
 
-    const agentsSkillsDir = path.join(thisDir, '.agents', 'skills');
+    const agentsSkillsDir = path.join(thisDir, '../.agents/skills');
     await _rm(agentsSkillsDir, { recursive: true, force: true });
-    await _mkdir(agentsSkillsDir, { recursive: true });
+    await _mkdir(agentsSkillsDir, { recursive: true, force: true });
 
     const srcSkillsDir = path.join(tmpDir, 'skills');
-    await _cp(srcSkillsDir, agentsSkillsDir, { recursive: true });
+    await _cp(srcSkillsDir, agentsSkillsDir, { recursive: true, force: true });
+    console.log('skills copied to:', agentsSkillsDir);
   } finally {
     await _rm(tmpDir, { recursive: true, force: true });
   }

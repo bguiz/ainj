@@ -209,7 +209,7 @@ describe('runWizard()', () => {
       _readState: () => ({}),
       _writeState: () => {},
       _writeHarnessConfigs: () => { calls.push('writeHarnessConfigs'); },
-      _installSkills: () => { calls.push('installSkills'); },
+      _installSkills: async () => { calls.push('installSkills'); },
     });
     assert.ok(calls.includes('installSkills'), 'installSkills must be called');
     assert.ok(

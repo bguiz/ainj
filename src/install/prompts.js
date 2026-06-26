@@ -89,7 +89,7 @@ export async function runWizard({
   }
 
   _writeHarnessConfigs(harnesses, scope, Number(mainPort), Number(docsPort));
-  _installSkills();
+  await _installSkills();
 
   const defaultHarness = _which('claude') ? 'claude' : _which('codex') ? 'codex' : null;
 

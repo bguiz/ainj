@@ -31,7 +31,9 @@
   "main": "src/lib/ainj.js",
   "files": [
     "src/",
-    "!src/**/*.test.js"
+    "scripts/",
+    "!src/**/*.test.js",
+    "!scripts/**/*.test.js"
   ],
   "dependencies": {
     "@clack/prompts": "0.9.1",
