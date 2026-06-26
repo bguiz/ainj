@@ -1,6 +1,6 @@
 {
   "name": "@bguiz/ainj",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "An AI SDK for Injective",
   "keywords": [
     "injective",
@@ -30,6 +30,7 @@
   },
   "main": "src/lib/ainj.js",
   "files": [
+    "ainj.config.json",
     "src/",
     "scripts/",
     "!src/**/*.test.js",
