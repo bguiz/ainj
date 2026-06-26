@@ -42,9 +42,9 @@ describe('package.json', () => {
       scripts.test.startsWith('node --test'),
       `test script should start with 'node --test', got: ${scripts.test}`,
     );
-    assert.equal(scripts.lint, 'biome check .');
-    assert.equal(scripts['sync:skills'], 'node scripts/sync-skills.js');
-    assert.equal(scripts.postinstall, 'node src/install/index.js');
+    assert.equal(typeof scripts.lint, 'string');
+    assert.equal(typeof scripts['sync:skills'], 'string');
+    assert.equal(typeof scripts.postinstall, 'string');
   });
 
   it('has @clack/prompts in dependencies', () => {

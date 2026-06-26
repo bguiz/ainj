@@ -122,10 +122,10 @@ describe('status-cli run() — default harness line', () => {
 // ---------------------------------------------------------------------------
 
 describe('status-cli run() — skills line', () => {
-  it('prints comma-separated skill names', async () => {
+  it('prints number of skills', async () => {
     const deps = mkDeps({}, [fakeDir('foo'), fakeDir('bar')]);
     await run([], deps);
-    assert.ok(deps.lines.includes('skills: foo, bar'));
+    assert.ok(deps.lines.includes('skills: 2 available.'));
   });
 
   it('prints (none) when skills dir is empty', async () => {
@@ -150,6 +150,6 @@ describe('status-cli run() — skills line', () => {
     ];
     const deps = mkDeps({}, entries);
     await run([], deps);
-    assert.ok(deps.lines.includes('skills: my-skill'));
+    assert.ok(deps.lines.includes('skills: 1 available.'));
   });
 });

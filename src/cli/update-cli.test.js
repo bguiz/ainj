@@ -25,7 +25,7 @@ describe('update-cli run() — global scope', () => {
     const deps = mkDeps({ scope: 'global' });
     await run([], deps);
     assert.equal(deps.calls.length, 1);
-    assert.deepEqual(deps.calls[0], ['npm', 'install', '-g', 'ainj@latest']);
+    assert.deepEqual(deps.calls[0], ['npm', 'install', '-g', '@bguiz/ainj@latest']);
   });
 });
 
@@ -38,7 +38,7 @@ describe('update-cli run() — local scope', () => {
     const deps = mkDeps({ scope: 'local' });
     await run([], deps);
     assert.equal(deps.calls.length, 1);
-    assert.deepEqual(deps.calls[0], ['npm', 'install', 'ainj@latest']);
+    assert.deepEqual(deps.calls[0], ['npm', 'install', '@bguiz/ainj@latest']);
   });
 });
 

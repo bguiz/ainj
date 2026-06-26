@@ -53,17 +53,17 @@ describe('skills-cli run() — skill names', () => {
 // ---------------------------------------------------------------------------
 
 describe('skills-cli run() — empty or missing dir', () => {
-  it('prints sync:skills message when dir is empty', async () => {
+  it('prints no skills found message when dir is empty', async () => {
     const deps = mkDeps([]);
     await run([], deps);
-    assert.ok(deps.lines.some((l) => l.includes('npm run sync:skills')));
+    assert.ok(deps.lines.some((l) => l.includes('No skills available.')));
   });
 
-  it('prints sync:skills message when dir is missing (ENOENT) — does not throw', async () => {
+  it('prints no skills found message when dir is missing (ENOENT) — does not throw', async () => {
     const deps = mkDeps([], { throwEnoent: true });
     await assert.doesNotReject(() => run([], deps));
     const deps2 = mkDeps([], { throwEnoent: true });
     await run([], deps2);
-    assert.ok(deps2.lines.some((l) => l.includes('npm run sync:skills')));
+    assert.ok(deps2.lines.some((l) => l.includes('No skills available.')));
   });
 });
