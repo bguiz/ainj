@@ -153,6 +153,45 @@ You can override the ports with environment variables:
 - `AINJ_MCP_MAIN_PORT`
 - `AINJ_MCP_DOCS_PORT`
 
+### Inspecting MCP servers
+
+If you would like to manually inspect/debug the MCP servers,
+use the official MCP inspector.
+
+```shell
+DANGEROUSLY_OMIT_AUTH=true npx -y @modelcontextprotocol/inspector
+```
+
+This will open up a web app, by default at: `http://localhost:6274/`.
+The easiest is for the `http` MCP servers.
+Ensure that you already have the server running, then select the following options:
+
+```text
+Transport type: Streamable HTTP
+URL: http://localhost:3001/mcp (for main MCP)
+URL: http://localhost:3002/mcp (for docs MCP)
+Connection Type: Via proxy
+Authentication: (delete any entries)
+```
+
+For the `stdio` MCP servers, no need to run them first, the inspector run it for you.
+Select the following options:
+
+```text
+Transport type: STDIO
+Command: ainj
+Arguments: mcp main stdio (for main MCP)
+Arguments: mcp docs stdio (for docs MCP)
+Authentication: (delete any entries)
+```
+- Press the "Connect" button
+- Press the "List tools" button
+- See all available MCP tools listed
+- Select one of the tools
+- Fill in the tool call arguments
+- Press the "Run tool" button
+- View tool call result
+
 ## Environment
 
 The CLI loads a `.env` file from the current working directory before executing commands.
