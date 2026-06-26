@@ -5,6 +5,7 @@ import path from 'node:path';
 import { readState } from '../install/state.js';
 
 const { version } = createRequire(import.meta.url)('../../package.json');
+const thisDir = import.meta.dirname;
 
 export async function run(
   _args,
@@ -19,15 +20,20 @@ export async function run(
     state.harnesses?.length ? state.harnesses.join(', ') : '(none)';
   const defaultHarness = state.defaultHarness ?? '(none)';
 
-  const skillsDir = path.join(process.cwd(), '.agents', 'skills');
+  const agentsSkillsDir = path.join(thisDir, '../../.agents/skills');
   let skillNames = [];
   try {
-    const entries = await _readdir(skillsDir, { withFileTypes: true });
+    const entries = await _readdir(agentsSkillsDir, { withFileTypes: true });
     skillNames = entries.filter((e) => e.isDirectory()).map((e) => e.name);
   } catch (err) {
     if (err.code !== 'ENOENT') throw err;
   }
-  const skillsStr = skillNames.length ? skillNames.join(', ') : '(none)';
+  let skillsStr;
+  if (skillNames.length > 0) {
+    skillsStr = `${skillNames.length} available.`
+  } else {
+    skillsStr = '(none)';
+  }
 
   _log(`version: ${version}`);
   _log(`scope: ${scope}`);
