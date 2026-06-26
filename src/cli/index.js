@@ -7,14 +7,14 @@ loadEnv();
 const USAGE = `Usage: ainj <command> [args...]
 
 Commands:
-  mcp          Start MCP server(s)
   cli          Run injectived CLI
-  injectived   (alias for cli)
+  injectived   cli (alias)
   install      Configure AInj harnesses
-  update       Update AInj to the latest version
+  mcp          Start MCP server(s)
   status       Show current configuration
   skills       List available skills
-  version      (alias for status)
+  update       Update AInj to the latest version
+  version      status (alias)
 `;
 
 const { action, cmd, rest } = route(process.argv.slice(2));

@@ -38,7 +38,7 @@
   ],
   "dependencies": {
     "@clack/prompts": "0.9.1",
-    "@injective-agent/core": "github:InjectiveLabs/mcp-server",
+    "@injective-agent/core": "github:InjectiveLabs/mcp-server#main",
     "injective-core": "1.18.0",
     "smol-toml": "1.6.1"
   },
@@ -50,7 +50,7 @@
     "test": "node --test --experimental-test-module-mocks",
     "lint": "biome check .",
     "sync:skills": "node scripts/sync-skills.js",
-    "postinstall": "node src/install/index.js",
+    "postinstall": "npm install git+https://github.com/InjectiveLabs/mcp-server.git#main && node src/install/index.js",
     "list-files": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz"
   }
 }
