@@ -16,7 +16,7 @@ function readText(file) {
 }
 
 describe('package.json', () => {
-  it('name is "ainj"', () => {
+  it('name is "@bguiz/ainj"', () => {
     const pkg = readJson('package.json');
     assert.equal(pkg.name, 'ainj');
   });

@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 
+const thisDir = import.meta.dirname;
+
 export async function syncSkills({
   _readFile = readFile,
   _spawn = spawnSync,
@@ -15,8 +17,9 @@ export async function syncSkills({
   _env = process.env,
   _cwd = () => process.cwd(),
 } = {}) {
+  console.log('Syncing skills...');
   const configText = await _readFile(
-    path.join(_cwd(), 'ainj.config.json'),
+    path.join(thisDir, '..', 'ainj.config.json'),
     'utf8',
   );
   const config = JSON.parse(configText);
@@ -28,6 +31,7 @@ export async function syncSkills({
   }
 
   const { skillsRef } = config;
+  console.log('Skills git ref:', skillsRef);
   const token = _env.GITHUB_TOKEN;
   const repoUrl = token
     ? `https://${token}@github.com/InjectiveLabs/agent-skills.git`
@@ -46,7 +50,7 @@ export async function syncSkills({
       throw new Error(`git clone failed (exit ${result.status}): ${stderr}`);
     }
 
-    const agentsSkillsDir = path.join(_cwd(), '.agents', 'skills');
+    const agentsSkillsDir = path.join(thisDir, '.agents', 'skills');
     await _rm(agentsSkillsDir, { recursive: true, force: true });
     await _mkdir(agentsSkillsDir, { recursive: true });
 

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 import { installSkills } from './skills-install.js';
 
@@ -15,7 +16,10 @@ describe('installSkills()', () => {
     assert.deepEqual(captured, [
       'npx',
       ['skills', 'add', './'],
-      { stdio: 'inherit', cwd: process.cwd() },
+      {
+        stdio: 'inherit',
+        cwd: assert.when((val) => (typeof val === 'string' && val.endsWith('.agents/skills/'))),
+      },
     ]);
   });
 
