@@ -1,6 +1,6 @@
 {
-  "name": "ainj",
-  "version": "0.1.0",
+  "name": "@bguiz/ainj",
+  "version": "0.1.1",
   "description": "An AI SDK for Injective",
   "keywords": [
     "injective",
@@ -11,6 +11,9 @@
     "CLI",
     "SDK"
   ],
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "homepage": "https://github.com/bguiz/ainj#readme",
   "bugs": {
     "url": "https://github.com/bguiz/ainj/issues"
