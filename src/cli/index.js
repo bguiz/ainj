@@ -9,11 +9,12 @@ const USAGE = `Usage: ainj <command> [args...]
 Commands:
   mcp          Start MCP server(s)
   cli          Run injectived CLI
-  injectived   Run injectived CLI (alias for cli)
+  injectived   (alias for cli)
   install      Configure AInj harnesses
   update       Update AInj to the latest version
   status       Show current configuration
   skills       List available skills
+  version      (alias for status)
 `;
 
 const { action, cmd, rest } = route(process.argv.slice(2));
@@ -38,6 +39,7 @@ switch (action) {
       update: './update-cli.js',
       status: './status-cli.js',
       skills: './skills-cli.js',
+      version: './status-cli.js',
     };
     const { run } = await import(handlers[cmd]);
     await run(rest);
