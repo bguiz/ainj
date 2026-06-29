@@ -142,7 +142,10 @@ describe('harness resolution — state priority', () => {
       scope === 'global' ? { defaultHarness: 'claude' } : { defaultHarness: 'codex' };
     let invokedBin;
     execFileImpl = async (bin, args) => {
-      if (args[0] === '--version') { invokedBin = bin; return { stdout: 'v1\n', stderr: '' }; }
+      if (args[0] === '--version') {
+        invokedBin = bin;
+        return { stdout: 'v1\n', stderr: '' };
+      }
       return { stdout: '', stderr: '' };
     };
 
@@ -152,11 +155,13 @@ describe('harness resolution — state priority', () => {
   });
 
   it('falls back to local defaultHarness when global has none', async () => {
-    readStateImpl = (scope) =>
-      scope === 'global' ? {} : { defaultHarness: 'codex' };
+    readStateImpl = (scope) => (scope === 'global' ? {} : { defaultHarness: 'codex' });
     let invokedBin;
     execFileImpl = async (bin, args) => {
-      if (args[0] === '--version') { invokedBin = bin; return { stdout: 'v1\n', stderr: '' }; }
+      if (args[0] === '--version') {
+        invokedBin = bin;
+        return { stdout: 'v1\n', stderr: '' };
+      }
       return { stdout: '', stderr: '' };
     };
 
@@ -233,7 +238,10 @@ describe('runWithClaude()', () => {
     readStateImpl = () => ({});
     let invokedBin;
     execFileImpl = async (bin, args) => {
-      if (args[0] === '--version') { invokedBin = bin; return { stdout: 'v1\n', stderr: '' }; }
+      if (args[0] === '--version') {
+        invokedBin = bin;
+        return { stdout: 'v1\n', stderr: '' };
+      }
       return { stdout: '', stderr: '' };
     };
 
@@ -260,7 +268,10 @@ describe('runWithCodex()', () => {
     readStateImpl = () => ({});
     let invokedBin;
     execFileImpl = async (bin, args) => {
-      if (args[0] === '--version') { invokedBin = bin; return { stdout: 'v1\n', stderr: '' }; }
+      if (args[0] === '--version') {
+        invokedBin = bin;
+        return { stdout: 'v1\n', stderr: '' };
+      }
       return { stdout: '', stderr: '' };
     };
 
@@ -288,8 +299,7 @@ describe('runWithCodex()', () => {
 
 describe('unknown harness', () => {
   it('throws a descriptive error for an unknown harness name', async () => {
-    readStateImpl = (scope) =>
-      scope === 'global' ? { defaultHarness: 'unknownbot' } : {};
+    readStateImpl = (scope) => (scope === 'global' ? { defaultHarness: 'unknownbot' } : {});
 
     await assert.rejects(
       () => skills.run('skill-x'),

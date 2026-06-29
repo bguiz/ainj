@@ -194,7 +194,9 @@ describe('runWizard()', () => {
       _which: () => null,
       _readState: () => ({}),
       _writeState: () => {},
-      _writeHarnessConfigs: (...args) => { captured = args; },
+      _writeHarnessConfigs: (...args) => {
+        captured = args;
+      },
       _installSkills: () => {},
     });
     assert.deepEqual(captured, [['claude', 'codex'], 'local', 4001, 4002]);
@@ -208,8 +210,12 @@ describe('runWizard()', () => {
       _which: () => null,
       _readState: () => ({}),
       _writeState: () => {},
-      _writeHarnessConfigs: () => { calls.push('writeHarnessConfigs'); },
-      _installSkills: async () => { calls.push('installSkills'); },
+      _writeHarnessConfigs: () => {
+        calls.push('writeHarnessConfigs');
+      },
+      _installSkills: async () => {
+        calls.push('installSkills');
+      },
     });
     assert.ok(calls.includes('installSkills'), 'installSkills must be called');
     assert.ok(

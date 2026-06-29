@@ -1,5 +1,5 @@
+import { connectHttp, connectStdio } from './connect.js';
 import { resolveServer } from './spawn.js';
-import { connectStdio, connectHttp } from './connect.js';
 
 const INITIAL = 'INITIAL';
 const MANAGED = 'MANAGED';
@@ -14,7 +14,9 @@ export class McpClient {
     this.#bin = bin;
   }
 
-  get state() { return this.#state; }
+  get state() {
+    return this.#state;
+  }
 
   async start() {
     if (this.#state !== INITIAL) throw new Error(`Cannot start(): current state is ${this.#state}`);
@@ -31,13 +33,15 @@ export class McpClient {
   }
 
   async connect(url) {
-    if (this.#state !== INITIAL) throw new Error(`Cannot connect(): current state is ${this.#state}`);
+    if (this.#state !== INITIAL)
+      throw new Error(`Cannot connect(): current state is ${this.#state}`);
     this.#client = await connectHttp(url);
     this.#state = CONNECTED;
   }
 
   async disconnect() {
-    if (this.#state !== CONNECTED) throw new Error(`Cannot disconnect(): current state is ${this.#state}`);
+    if (this.#state !== CONNECTED)
+      throw new Error(`Cannot disconnect(): current state is ${this.#state}`);
     await this.#client.close();
     this.#client = null;
     this.#state = INITIAL;
@@ -45,13 +49,13 @@ export class McpClient {
 
   async toolCall(name, params = {}) {
     if (this.#state === INITIAL) {
-      throw new Error(`toolCall() requires MANAGED or CONNECTED state; current state is INITIAL`);
+      throw new Error('toolCall() requires MANAGED or CONNECTED state; current state is INITIAL');
     }
     if (params === null) {
-      throw new TypeError(`toolCall params must be a plain JSON object; got null`);
+      throw new TypeError('toolCall params must be a plain JSON object; got null');
     }
     if (Array.isArray(params)) {
-      throw new TypeError(`toolCall params must be a plain JSON object; got array`);
+      throw new TypeError('toolCall params must be a plain JSON object; got array');
     }
     if (typeof params !== 'object') {
       throw new TypeError(`toolCall params must be a plain JSON object; got ${typeof params}`);

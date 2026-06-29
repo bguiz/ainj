@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it, mock, before, after } from 'node:test';
+import { after, before, describe, it, mock } from 'node:test';
 
 // ---------------------------------------------------------------------------
 // Cycle 21 — main and docs are independent McpClient instances
@@ -23,7 +23,9 @@ let McpClient;
 
 before(async () => {
   mock.module('./spawn.js', { namedExports: { resolveServer: resolveServerMock } });
-  mock.module('./connect.js', { namedExports: { connectStdio: connectStdioMock, connectHttp: connectHttpMock } });
+  mock.module('./connect.js', {
+    namedExports: { connectStdio: connectStdioMock, connectHttp: connectHttpMock },
+  });
 
   ({ McpClient } = await import('./client.js'));
   ({ main } = await import('./main.js'));

@@ -5,10 +5,7 @@ import { readState } from '../install/state.js';
 
 const { name: packageName } = createRequire(import.meta.url)('../../package.json');
 
-export async function run(
-  _args,
-  { _readState = readState, _spawnSync = spawnSync } = {},
-) {
+export async function run(_args, { _readState = readState, _spawnSync = spawnSync } = {}) {
   const state = _readState('global');
 
   if (state.scope === 'local') {

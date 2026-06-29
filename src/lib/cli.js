@@ -25,9 +25,7 @@ export function resolveBinary() {
     return result.stdout.trim();
   }
 
-  throw new Error(
-    'injectived not found: injective-core not installed and injectived not on $PATH',
-  );
+  throw new Error('injectived not found: injective-core not installed and injectived not on $PATH');
 }
 
 async function cli(...args) {

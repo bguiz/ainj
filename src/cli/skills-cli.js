@@ -3,10 +3,7 @@ import path from 'node:path';
 
 const thisDir = import.meta.dirname;
 
-export async function run(
-  _args,
-  { _readdir = readdir, _log = console.log } = {},
-) {
+export async function run(_args, { _readdir = readdir, _log = console.log } = {}) {
   const agentsSkillsDir = path.join(thisDir, '../../.agents/skills');
 
   let entries;

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import EventEmitter from 'node:events';
 import { spawn } from 'node:child_process';
+import EventEmitter from 'node:events';
 import net from 'node:net';
-import { fileURLToPath } from 'node:url';
 import { after, before, describe, it, mock } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 let coreAvailable = false;
 try {
@@ -18,7 +18,16 @@ try {
   const probe = await fetch('https://docs.injective.network/mcp', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'probe', version: '0.0.1' } } }),
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'initialize',
+      params: {
+        protocolVersion: '2024-11-05',
+        capabilities: {},
+        clientInfo: { name: 'probe', version: '0.0.1' },
+      },
+    }),
     signal: AbortSignal.timeout(3000),
   });
   docsNetworkAvailable = probe.ok || probe.status === 400;
@@ -103,8 +112,12 @@ describe("run(['main'])", () => {
   it('calls process.exit(1) when transport is missing', async (t) => {
     const savedExit = process.exit;
     let capturedCode;
-    process.exit = (code) => { capturedCode = code; };
-    t.after(() => { process.exit = savedExit; });
+    process.exit = (code) => {
+      capturedCode = code;
+    };
+    t.after(() => {
+      process.exit = savedExit;
+    });
 
     await run(['main']);
 
@@ -120,8 +133,12 @@ describe("run(['unknown'])", () => {
   it('calls process.exit(1) for an unrecognised server', async (t) => {
     const savedExit = process.exit;
     let capturedCode;
-    process.exit = (code) => { capturedCode = code; };
-    t.after(() => { process.exit = savedExit; });
+    process.exit = (code) => {
+      capturedCode = code;
+    };
+    t.after(() => {
+      process.exit = savedExit;
+    });
 
     await run(['unknown']);
 
@@ -137,8 +154,12 @@ describe("run(['docs'])", () => {
   it('calls process.exit(1) when transport is missing', async (t) => {
     const savedExit = process.exit;
     let capturedCode;
-    process.exit = (code) => { capturedCode = code; };
-    t.after(() => { process.exit = savedExit; });
+    process.exit = (code) => {
+      capturedCode = code;
+    };
+    t.after(() => {
+      process.exit = savedExit;
+    });
 
     await run(['docs']);
 
@@ -216,7 +237,10 @@ function waitForPort(port, { retries = 20, delayMs = 100 } = {}) {
     let attempts = 0;
     function attempt() {
       const socket = net.connect(port, '127.0.0.1');
-      socket.on('connect', () => { socket.destroy(); resolve(true); });
+      socket.on('connect', () => {
+        socket.destroy();
+        resolve(true);
+      });
       socket.on('error', () => {
         socket.destroy();
         if (++attempts < retries) setTimeout(attempt, delayMs);
@@ -281,7 +305,12 @@ describe('ainj mcp docs http — integration', () => {
 describe('ainj mcp http (convenience) — integration', () => {
   it(
     'starts both main (3001) and docs (3002) HTTP servers simultaneously',
-    { skip: (coreAvailable && docsNetworkAvailable) ? false : 'requires @injective-agent/core and docs.injective.network' },
+    {
+      skip:
+        coreAvailable && docsNetworkAvailable
+          ? false
+          : 'requires @injective-agent/core and docs.injective.network',
+    },
     async (t) => {
       const child = spawn(process.execPath, [cliIndex, 'mcp', 'http'], {
         stdio: 'pipe',
@@ -289,10 +318,7 @@ describe('ainj mcp http (convenience) — integration', () => {
       });
       t.after(() => child.kill());
 
-      const [mainReady, docsReady] = await Promise.all([
-        waitForPort(3001),
-        waitForPort(3002),
-      ]);
+      const [mainReady, docsReady] = await Promise.all([waitForPort(3001), waitForPort(3002)]);
       assert.ok(mainReady, 'port 3001 should accept connections');
       assert.ok(docsReady, 'port 3002 should accept connections');
     },

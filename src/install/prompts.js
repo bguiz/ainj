@@ -1,7 +1,7 @@
 import * as p from '@clack/prompts';
-import { readState, writeState } from './state.js';
 import { writeHarnessConfigs as writeHarnessConfigsDefault } from './harnesses/index.js';
 import { installSkills as installSkillsDefault } from './skills-install.js';
+import { readState, writeState } from './state.js';
 import { which as whichDefault } from './which.js';
 
 export async function runDefaults({
@@ -33,7 +33,8 @@ export async function runWizard({
   ...stateOpts
 } = {}) {
   const localState = _readState('local', stateOpts);
-  const existing = Object.keys(localState).length > 0 ? localState : _readState('global', stateOpts);
+  const existing =
+    Object.keys(localState).length > 0 ? localState : _readState('global', stateOpts);
 
   _p.intro('AInj setup');
 

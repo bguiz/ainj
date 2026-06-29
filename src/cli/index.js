@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { route } from './router.js';
 import { loadEnv } from '../env.js';
+import { route } from './router.js';
 
 loadEnv();
 
