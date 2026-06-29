@@ -1,9 +1,14 @@
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 
-export function write(scope, mainPort, docsPort, { homeDir = os.homedir(), cwd = process.cwd() } = {}) {
+export function write(
+  scope,
+  mainPort,
+  docsPort,
+  { homeDir = os.homedir(), cwd = process.cwd() } = {},
+) {
   if (scope === 'local') {
     _writeLocal(cwd, mainPort, docsPort);
   } else {
@@ -17,7 +22,7 @@ function _writeGlobal(homeDir, mainPort, docsPort) {
   try {
     data = JSON.parse(readFileSync(filePath, 'utf8'));
   } catch {
-    // file absent or unreadable — start fresh
+    // File absent or unreadable: start fresh.
   }
   _mergeEntries(data, mainPort, docsPort);
   mkdirSync(path.dirname(filePath), { recursive: true });
@@ -30,7 +35,7 @@ function _writeLocal(cwd, mainPort, docsPort) {
   try {
     data = parseToml(readFileSync(filePath, 'utf8'));
   } catch {
-    // file absent or unreadable — start fresh
+    // File absent or unreadable: start fresh.
   }
   _mergeEntries(data, mainPort, docsPort);
   mkdirSync(path.dirname(filePath), { recursive: true });
@@ -41,6 +46,6 @@ function _mergeEntries(data, mainPort, docsPort) {
   if (!data.mcpServers) data.mcpServers = {};
   data.mcpServers['ainj-main'] = { command: 'ainj', args: ['mcp', 'main', 'stdio'] };
   data.mcpServers['ainj-docs'] = { command: 'ainj', args: ['mcp', 'docs', 'stdio'] };
-  data.mcpServers['ainj-main-http'] = { url: `http://localhost:${mainPort}` };
-  data.mcpServers['ainj-docs-http'] = { url: `http://localhost:${docsPort}` };
+  data.mcpServers['ainj-main-http'] = { url: `http://localhost:${mainPort}/mcp` };
+  data.mcpServers['ainj-docs-http'] = { url: `http://localhost:${docsPort}/mcp` };
 }

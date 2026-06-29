@@ -2,15 +2,7 @@
   "name": "@bguiz/ainj",
   "version": "0.2.3",
   "description": "An AI SDK for Injective",
-  "keywords": [
-    "injective",
-    "AI",
-    "agent-skills",
-    "skills",
-    "MCP",
-    "CLI",
-    "SDK"
-  ],
+  "keywords": ["injective", "AI", "agent-skills", "skills", "MCP", "CLI", "SDK"],
   "engines": {
     "node": ">=24.0.0"
   },
@@ -29,16 +21,10 @@
     "ainj": "src/cli/index.js"
   },
   "main": "src/lib/ainj.js",
-  "files": [
-    "ainj.config.json",
-    "src/",
-    "scripts/",
-    "!src/**/*.test.js",
-    "!scripts/**/*.test.js"
-  ],
+  "files": ["ainj.config.json", "src/", "scripts/", "!src/**/*.test.js", "!scripts/**/*.test.js"],
   "dependencies": {
     "@clack/prompts": "0.9.1",
-    "@injective-agent/core": "github:InjectiveLabs/mcp-server#feat/postinstall",
+    "@injective-agent/core": "github:InjectiveLabs/mcp-server#a5fe59f1310a579f0569627fee2c7bef59d913d0",
     "injective-core": "1.18.0",
     "smol-toml": "1.6.1"
   },
@@ -52,7 +38,6 @@
     "test": "node --test --experimental-test-module-mocks",
     "lint": "biome check .",
     "sync:skills": "node scripts/sync-skills.js",
-    "postinstall": "npm install git+https://github.com/InjectiveLabs/mcp-server.git#feat/postinstall && node src/install/index.js",
     "list-files": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz"
   }
 }

@@ -1,5 +1,5 @@
-import { startHttp as mainHttp, startStdio as mainStdio } from '../mcp/main/index.js';
 import { startHttp as docsHttp, startStdio as docsStdio } from '../mcp/docs/index.js';
+import { startHttp as mainHttp, startStdio as mainStdio } from '../mcp/main/index.js';
 
 export async function run([server, transport] = []) {
   if (server === 'main') {

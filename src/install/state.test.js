@@ -3,15 +3,19 @@ import { readFile } from 'node:fs/promises';
 import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { describe, it, before, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 
-import { stateFilePath, readState, writeState } from './state.js';
+import { readState, stateFilePath, writeState } from './state.js';
 import { which } from './which.js';
 
 function useTmpDir() {
   let tmpDir;
-  before(async () => { tmpDir = await mkdtemp(path.join(os.tmpdir(), 'ainj-test-')); });
-  after(async () => { await rm(tmpDir, { recursive: true, force: true }); });
+  before(async () => {
+    tmpDir = await mkdtemp(path.join(os.tmpdir(), 'ainj-test-'));
+  });
+  after(async () => {
+    await rm(tmpDir, { recursive: true, force: true });
+  });
   return { dir: () => tmpDir };
 }
 

@@ -32,7 +32,9 @@ async function runWithHarness(skillName, params, opts, harness) {
 
   let harnessVersion = 'unknown';
   try {
-    const { stdout } = await execFileAsync(bin, ['--version'], { timeout: DEFAULT_VERSION_TIMEOUT_MS });
+    const { stdout } = await execFileAsync(bin, ['--version'], {
+      timeout: DEFAULT_VERSION_TIMEOUT_MS,
+    });
     harnessVersion = stdout.trim();
   } catch {
     // fallback to 'unknown'
@@ -44,7 +46,9 @@ async function runWithHarness(skillName, params, opts, harness) {
   let exitCode = 0;
 
   try {
-    const result = await execFileAsync(bin, ['-p', prompt, '--output-format', 'text'], { timeout: skillTimeout });
+    const result = await execFileAsync(bin, ['-p', prompt, '--output-format', 'text'], {
+      timeout: skillTimeout,
+    });
     stdout = result.stdout ?? '';
     stderr = result.stderr ?? '';
   } catch (err) {
@@ -64,9 +68,7 @@ async function run(skillName, params, opts) {
   const localState = readState('local', opts);
   const harness = globalState.defaultHarness ?? localState.defaultHarness;
   if (!harness) {
-    throw new Error(
-      'No AI harness configured. Run `ainj install` to set one up.',
-    );
+    throw new Error('No AI harness configured. Run `ainj install` to set one up.');
   }
   return runWithHarness(skillName, params, opts, harness);
 }

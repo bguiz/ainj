@@ -1,16 +1,22 @@
 import assert from 'node:assert/strict';
-import { describe, it, mock, before, after } from 'node:test';
+import { after, before, describe, it, mock } from 'node:test';
 
 // ---------------------------------------------------------------------------
 // Mock SDK — captured before connect.js is imported
 // ---------------------------------------------------------------------------
 
-const mockTransport = {};
-const MockStdioClientTransport = mock.fn(function () { return mockTransport; });
-const MockStreamableHTTPClientTransport = mock.fn(function () { return mockTransport; });
+class StdioClientTransportMock {}
+class StreamableHTTPClientTransportMock {}
+const MockStdioClientTransport = mock.fn(StdioClientTransportMock);
+const MockStreamableHTTPClientTransport = mock.fn(StreamableHTTPClientTransportMock);
 
 const mockClientInstance = { connect: mock.fn(async () => {}) };
-const MockClient = mock.fn(function () { return mockClientInstance; });
+class ClientMock {
+  constructor() {
+    this.connect = mockClientInstance.connect;
+  }
+}
+const MockClient = mock.fn(ClientMock);
 
 let connectStdio;
 

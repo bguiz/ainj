@@ -10,9 +10,9 @@ import { syncSkills } from './sync-skills.js';
 
 async function asyncNoop() {}
 
-function makeMinimalDeps(skillsRef = 'main', token) {
+function makeMinimalDeps(skillsRef, token) {
   return {
-    _readFile: async () => JSON.stringify({ skillsRef }),
+    _readFile: async () => JSON.stringify({ skillsRef: skillsRef ?? 'main' }),
     _spawn: () => ({ status: 0, stderr: Buffer.from('') }),
     _cp: asyncNoop,
     _rm: asyncNoop,
@@ -24,167 +24,204 @@ function makeMinimalDeps(skillsRef = 'main', token) {
 }
 
 // ---------------------------------------------------------------------------
-// Cycle 1 — missing skillsRef throws
+// Cycle 1: missing skillsRef throws
 // ---------------------------------------------------------------------------
 
-describe('syncSkills() — missing skillsRef', () => {
+describe('syncSkills(): missing skillsRef', () => {
   it('throws with message referencing skillsRef when key is absent', async () => {
-    await assert.rejects(
-      () => syncSkills({ _readFile: async () => '{}' }),
-      /skillsRef/,
-    );
+    await assert.rejects(() => syncSkills({ _readFile: async () => '{}' }), /skillsRef/);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Cycle A — git clone called with correct args
+// Cycle A: git fetch called with correct args
 // ---------------------------------------------------------------------------
 
-describe('syncSkills() — git clone args', () => {
+describe('syncSkills(): git fetch args', () => {
   it('calls _spawn with "git" as the command', async () => {
     let capturedCmd;
     const deps = {
       ...makeMinimalDeps('main'),
-      _spawn: (cmd, ...rest) => { capturedCmd = cmd; return { status: 0, stderr: Buffer.from('') }; },
+      _spawn: (cmd, ...rest) => {
+        capturedCmd = cmd;
+        return { status: 0, stderr: Buffer.from('') };
+      },
     };
     await syncSkills(deps);
     assert.equal(capturedCmd, 'git');
   });
 
-  it('passes "clone" as the first git argument', async () => {
-    let capturedArgs;
+  it('initializes the temporary git repository', async () => {
+    const calls = [];
     const deps = {
       ...makeMinimalDeps('main'),
-      _spawn: (cmd, args) => { capturedArgs = args; return { status: 0, stderr: Buffer.from('') }; },
+      _spawn: (cmd, args) => {
+        calls.push(args);
+        return { status: 0, stderr: Buffer.from('') };
+      },
     };
     await syncSkills(deps);
-    assert.ok(capturedArgs.includes('clone'), `expected args to include "clone", got: ${JSON.stringify(capturedArgs)}`);
+    assert.deepEqual(calls[0], ['init', '/tmp/ainj-skills-test']);
   });
 
-  it('passes the skillsRef value to git clone', async () => {
-    let capturedArgs;
+  it('fetches the skillsRef value', async () => {
+    const calls = [];
     const deps = {
       ...makeMinimalDeps('abc123'),
-      _spawn: (cmd, args) => { capturedArgs = args; return { status: 0, stderr: Buffer.from('') }; },
+      _spawn: (cmd, args) => {
+        calls.push(args);
+        return { status: 0, stderr: Buffer.from('') };
+      },
     };
     await syncSkills(deps);
+    const fetchArgs = calls.find((args) => args.includes('fetch'));
     assert.ok(
-      capturedArgs.includes('abc123'),
-      `expected args to include "abc123", got: ${JSON.stringify(capturedArgs)}`,
+      fetchArgs?.includes('abc123'),
+      `expected fetch args to include "abc123", got: ${JSON.stringify(calls)}`,
     );
   });
 
-  it('clones the InjectiveLabs/agent-skills repo', async () => {
-    let capturedArgs;
+  it('adds the InjectiveLabs/agent-skills remote', async () => {
+    const calls = [];
     const deps = {
       ...makeMinimalDeps('main'),
-      _spawn: (cmd, args) => { capturedArgs = args; return { status: 0, stderr: Buffer.from('') }; },
+      _spawn: (cmd, args) => {
+        calls.push(args);
+        return { status: 0, stderr: Buffer.from('') };
+      },
     };
     await syncSkills(deps);
+    const remoteArgs = calls.find((args) => args.includes('remote'));
     assert.ok(
-      capturedArgs.some((a) => a.includes('InjectiveLabs/agent-skills')),
-      `expected an arg containing "InjectiveLabs/agent-skills", got: ${JSON.stringify(capturedArgs)}`,
+      remoteArgs?.some((a) => a.includes('InjectiveLabs/agent-skills')),
+      `expected a remote arg containing "InjectiveLabs/agent-skills", got: ${JSON.stringify(calls)}`,
     );
   });
 
-  it('passes --depth=1 to limit clone size', async () => {
-    let capturedArgs;
+  it('passes --depth=1 to limit fetch size', async () => {
+    const calls = [];
     const deps = {
       ...makeMinimalDeps('main'),
-      _spawn: (cmd, args) => { capturedArgs = args; return { status: 0, stderr: Buffer.from('') }; },
+      _spawn: (cmd, args) => {
+        calls.push(args);
+        return { status: 0, stderr: Buffer.from('') };
+      },
     };
     await syncSkills(deps);
+    const fetchArgs = calls.find((args) => args.includes('fetch'));
     assert.ok(
-      capturedArgs.includes('--depth=1'),
-      `expected "--depth=1" in args, got: ${JSON.stringify(capturedArgs)}`,
+      fetchArgs?.includes('--depth=1'),
+      `expected "--depth=1" in fetch args, got: ${JSON.stringify(calls)}`,
     );
   });
 });
 
 // ---------------------------------------------------------------------------
-// Cycle B — git clone failure throws
+// Cycle B: git fetch failure throws
 // ---------------------------------------------------------------------------
 
-describe('syncSkills() — git clone failure', () => {
-  it('rejects when git clone returns a non-zero exit code', async () => {
+describe('syncSkills(): git fetch failure', () => {
+  it('rejects when git fetch returns a non-zero exit code', async () => {
+    let callCount = 0;
     const deps = {
       ...makeMinimalDeps('main'),
-      _spawn: () => ({ status: 128, stderr: Buffer.from('auth failed') }),
+      _spawn: () => {
+        callCount += 1;
+        return callCount === 3
+          ? { status: 128, stderr: Buffer.from('auth failed') }
+          : { status: 0, stderr: Buffer.from('') };
+      },
     };
     await assert.rejects(() => syncSkills(deps));
   });
 
   it('error message includes the exit code', async () => {
+    let callCount = 0;
     const deps = {
       ...makeMinimalDeps('main'),
-      _spawn: () => ({ status: 128, stderr: Buffer.from('') }),
+      _spawn: () => {
+        callCount += 1;
+        return callCount === 3
+          ? { status: 128, stderr: Buffer.from('') }
+          : { status: 0, stderr: Buffer.from('') };
+      },
     };
     await assert.rejects(() => syncSkills(deps), /128/);
   });
 
   it('error message includes stderr output', async () => {
+    let callCount = 0;
     const deps = {
       ...makeMinimalDeps('main'),
-      _spawn: () => ({ status: 1, stderr: Buffer.from('Repository not found') }),
+      _spawn: () => {
+        callCount += 1;
+        return callCount === 3
+          ? { status: 1, stderr: Buffer.from('Repository not found') }
+          : { status: 0, stderr: Buffer.from('') };
+      },
     };
     await assert.rejects(() => syncSkills(deps), /Repository not found/);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Cycle C — GITHUB_TOKEN embedded in clone URL
-// Cycle D — no token → plain URL
+// Cycle C: GITHUB_TOKEN embedded in remote URL
+// Cycle D: no token means plain URL
 // ---------------------------------------------------------------------------
 
-describe('syncSkills() — clone URL credentials', () => {
-  it('embeds GITHUB_TOKEN in the clone URL when set', async () => {
-    let cloneUrl;
+describe('syncSkills(): remote URL credentials', () => {
+  it('embeds GITHUB_TOKEN in the remote URL when set', async () => {
+    let remoteUrl;
     const deps = {
       ...makeMinimalDeps('main', 'ghp_secret'),
       _spawn: (cmd, args) => {
-        cloneUrl = args.find((a) => a.startsWith('https://'));
+        remoteUrl = args.find((a) => a.startsWith('https://')) ?? remoteUrl;
         return { status: 0, stderr: Buffer.from('') };
       },
     };
     await syncSkills(deps);
-    assert.ok(cloneUrl, 'no https URL found in spawn args');
+    assert.ok(remoteUrl, 'no https URL found in spawn args');
     assert.ok(
-      cloneUrl.includes('ghp_secret@github.com'),
-      `expected token in URL, got: ${cloneUrl}`,
+      remoteUrl.includes('ghp_secret@github.com'),
+      `expected token in URL, got: ${remoteUrl}`,
     );
   });
 
   it('uses plain https URL when GITHUB_TOKEN is absent', async () => {
-    let cloneUrl;
+    let remoteUrl;
     const deps = {
       ...makeMinimalDeps('main'),
       _spawn: (cmd, args) => {
-        cloneUrl = args.find((a) => a.startsWith('https://'));
+        remoteUrl = args.find((a) => a.startsWith('https://')) ?? remoteUrl;
         return { status: 0, stderr: Buffer.from('') };
       },
     };
     await syncSkills(deps);
-    assert.ok(cloneUrl, 'no https URL found in spawn args');
+    assert.ok(remoteUrl, 'no https URL found in spawn args');
     assert.ok(
-      !cloneUrl.includes('@github.com'),
-      `expected plain URL without credentials, got: ${cloneUrl}`,
+      !remoteUrl.includes('@github.com'),
+      `expected plain URL without credentials, got: ${remoteUrl}`,
     );
-    assert.ok(cloneUrl.includes('github.com/InjectiveLabs/agent-skills'));
+    assert.ok(remoteUrl.includes('github.com/InjectiveLabs/agent-skills'));
   });
 });
 
 // ---------------------------------------------------------------------------
-// Cycle E — cp called with correct src/dest paths
+// Cycle E: cp called with correct src/dest paths
 // ---------------------------------------------------------------------------
 
-describe('syncSkills() — cp paths', () => {
+describe('syncSkills(): cp paths', () => {
   it('copies from <tmpDir>/skills into .agents/skills', async () => {
     const tmpPath = '/tmp/ainj-skills-xyz';
-    let cpSrc, cpDest;
+    let cpSrc;
+    let cpDest;
     const deps = {
       ...makeMinimalDeps('main'),
       _mkdtemp: async () => tmpPath,
-      _cp: async (src, dest) => { cpSrc = src; cpDest = dest; },
+      _cp: async (src, dest) => {
+        cpSrc = src;
+        cpDest = dest;
+      },
     };
     await syncSkills(deps);
     assert.ok(cpSrc, '_cp was never called');
@@ -200,16 +237,20 @@ describe('syncSkills() — cp paths', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cycle F — rm .agents/skills/ called before cp
+// Cycle F: rm .agents/skills/ called before cp
 // ---------------------------------------------------------------------------
 
-describe('syncSkills() — wipe before copy', () => {
+describe('syncSkills(): wipe before copy', () => {
   it('calls rm on .agents/skills before cp', async () => {
     const callOrder = [];
     const deps = {
       ...makeMinimalDeps('main'),
-      _rm: async (p) => { if (p.endsWith(path.join('.agents', 'skills'))) callOrder.push('rm-skills'); },
-      _cp: async () => { callOrder.push('cp'); },
+      _rm: async (p) => {
+        if (p.endsWith(path.join('.agents', 'skills'))) callOrder.push('rm-skills');
+      },
+      _cp: async () => {
+        callOrder.push('cp');
+      },
     };
     await syncSkills(deps);
     const rmIdx = callOrder.indexOf('rm-skills');
@@ -235,17 +276,19 @@ describe('syncSkills() — wipe before copy', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cycle G — tmpdir removed after sync
+// Cycle G: tmpdir removed after sync
 // ---------------------------------------------------------------------------
 
-describe('syncSkills() — tmpdir cleanup', () => {
+describe('syncSkills(): tmpdir cleanup', () => {
   it('removes the tmpdir after a successful clone', async () => {
     const tmpPath = '/tmp/ainj-skills-cleanup';
     const rmPaths = [];
     const deps = {
       ...makeMinimalDeps('main'),
       _mkdtemp: async () => tmpPath,
-      _rm: async (p) => { rmPaths.push(p); },
+      _rm: async (p) => {
+        rmPaths.push(p);
+      },
     };
     await syncSkills(deps);
     assert.ok(
@@ -261,7 +304,9 @@ describe('syncSkills() — tmpdir cleanup', () => {
       ...makeMinimalDeps('main'),
       _mkdtemp: async () => tmpPath,
       _spawn: () => ({ status: 1, stderr: Buffer.from('fail') }),
-      _rm: async (p) => { rmPaths.push(p); },
+      _rm: async (p) => {
+        rmPaths.push(p);
+      },
     };
     await assert.rejects(() => syncSkills(deps));
     assert.ok(

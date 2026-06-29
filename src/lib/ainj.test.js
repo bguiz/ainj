@@ -43,7 +43,7 @@ describe('ainj API surface — mcp', () => {
   it('mutating mcp.main does not affect mcp.docs', () => {
     mcp.main.__testMarker = true;
     assert.equal(mcp.docs.__testMarker, undefined);
-    delete mcp.main.__testMarker;
+    Reflect.deleteProperty(mcp.main, '__testMarker');
   });
 });
 

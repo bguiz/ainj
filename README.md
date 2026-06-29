@@ -50,13 +50,13 @@ At the library level, AInj exports:
 Install AInj globally if you want the `ainj` command available everywhere (recommended):
 
 ```bash
-npm install -g ainj
+npm install -g @bguiz/ainj
 ```
 
 Install it locally if you do not need the `ainj` command, and mainly intend to interact with it programmatically.
 
 ```bash
-npm install ainj
+npm install @bguiz/ainj
 ```
 
 After installation, run the setup flow:
@@ -210,7 +210,7 @@ Existing shell environment variables take precedence over `.env`.
 ### Run `injectived`
 
 ```js
-import { cli } from 'ainj';
+import { cli } from '@bguiz/ainj';
 
 const { stdout, stderr } = await cli('version');
 console.log(stdout, stderr);
@@ -221,7 +221,7 @@ console.log(stdout, stderr);
 Start and manage a local stdio-backed MCP session:
 
 ```js
-import { mcp } from 'ainj';
+import { mcp } from '@bguiz/ainj';
 
 await mcp.main.start();
 const tools = await mcp.main.toolCall('tools/list');
@@ -231,7 +231,7 @@ await mcp.main.stop();
 Connect to an already-running HTTP MCP server:
 
 ```js
-import { mcp } from 'ainj';
+import { mcp } from '@bguiz/ainj';
 
 await mcp.docs.connect('http://localhost:3002/mcp');
 const tools = await mcp.docs.toolCall('tools/list');
@@ -241,7 +241,7 @@ await mcp.docs.disconnect();
 ### Run a skill through an AI harness
 
 ```js
-import { skills } from 'ainj';
+import { skills } from '@bguiz/ainj';
 
 const result = await skills.run('my-skill', { topic: 'perps' });
 console.log(result.stdout);
@@ -253,7 +253,7 @@ If no default harness is configured, it will ask you to run `ainj install`.
 You can force a specific supported harness:
 
 ```js
-import { skills } from 'ainj';
+import { skills } from '@bguiz/ainj';
 
 await skills.runWithClaude('my-skill');
 await skills.runWithCodex('my-skill');

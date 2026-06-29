@@ -16,8 +16,7 @@ export async function run(
   const scope = state.scope ?? '(none)';
   const mainPort = state.ports?.main ?? '(none)';
   const docsPort = state.ports?.docs ?? '(none)';
-  const harnesses =
-    state.harnesses?.length ? state.harnesses.join(', ') : '(none)';
+  const harnesses = state.harnesses?.length ? state.harnesses.join(', ') : '(none)';
   const defaultHarness = state.defaultHarness ?? '(none)';
 
   const agentsSkillsDir = path.join(thisDir, '../../.agents/skills');
@@ -30,7 +29,7 @@ export async function run(
   }
   let skillsStr;
   if (skillNames.length > 0) {
-    skillsStr = `${skillNames.length} available.`
+    skillsStr = `${skillNames.length} available.`;
   } else {
     skillsStr = '(none)';
   }

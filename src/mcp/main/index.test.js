@@ -1,7 +1,7 @@
 // @integration — all tests require @injective-agent/core to be installed
 
-import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
+import { describe, test } from 'node:test';
 
 let coreAvailable = false;
 try {
@@ -28,7 +28,7 @@ describe('startHttp()', () => {
     const saved = process.env.AINJ_MCP_MAIN_PORT;
     process.env.AINJ_MCP_MAIN_PORT = '19802';
     t.after(() => {
-      if (saved === undefined) delete process.env.AINJ_MCP_MAIN_PORT;
+      if (saved === undefined) Reflect.deleteProperty(process.env, 'AINJ_MCP_MAIN_PORT');
       else process.env.AINJ_MCP_MAIN_PORT = saved;
     });
 
@@ -43,7 +43,7 @@ describe('startHttp()', () => {
     if (!coreAvailable) return t.skip('@injective-agent/core not installed');
 
     const saved = process.env.AINJ_MCP_MAIN_PORT;
-    delete process.env.AINJ_MCP_MAIN_PORT;
+    Reflect.deleteProperty(process.env, 'AINJ_MCP_MAIN_PORT');
     t.after(() => {
       if (saved !== undefined) process.env.AINJ_MCP_MAIN_PORT = saved;
     });

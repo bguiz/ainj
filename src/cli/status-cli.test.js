@@ -36,7 +36,11 @@ describe('status-cli run() — readState', () => {
     let callCount = 0;
     let calledWith;
     const deps = mkDeps();
-    deps._readState = (scope) => { callCount++; calledWith = scope; return {}; };
+    deps._readState = (scope) => {
+      callCount++;
+      calledWith = scope;
+      return {};
+    };
 
     await run([], deps);
 
@@ -144,10 +148,7 @@ describe('status-cli run() — skills line', () => {
   });
 
   it('ignores non-directory entries in skills dir', async () => {
-    const entries = [
-      fakeDir('my-skill'),
-      { name: 'README.md', isDirectory: () => false },
-    ];
+    const entries = [fakeDir('my-skill'), { name: 'README.md', isDirectory: () => false }];
     const deps = mkDeps({}, entries);
     await run([], deps);
     assert.ok(deps.lines.includes('skills: 1 available.'));

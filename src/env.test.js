@@ -1,33 +1,33 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { test } from 'node:test';
 
 import { loadEnv } from './env.js';
 
 test('loadEnv sets env var from .env file in given directory', (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'ainj-env-'));
   t.after(() => rmSync(dir, { recursive: true }));
-  delete process.env.AINJ_ENV_TEST_A;
+  Reflect.deleteProperty(process.env, 'AINJ_ENV_TEST_A');
 
   writeFileSync(join(dir, '.env'), 'AINJ_ENV_TEST_A=hello\n');
   loadEnv(dir);
 
   assert.equal(process.env.AINJ_ENV_TEST_A, 'hello');
-  delete process.env.AINJ_ENV_TEST_A;
+  Reflect.deleteProperty(process.env, 'AINJ_ENV_TEST_A');
 });
 
 test('loadEnv sets AINJ_MCP_MAIN_PORT from .env file', (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'ainj-env-'));
   t.after(() => rmSync(dir, { recursive: true }));
-  delete process.env.AINJ_MCP_MAIN_PORT;
+  Reflect.deleteProperty(process.env, 'AINJ_MCP_MAIN_PORT');
 
   writeFileSync(join(dir, '.env'), 'AINJ_MCP_MAIN_PORT=4200\n');
   loadEnv(dir);
 
   assert.equal(process.env.AINJ_MCP_MAIN_PORT, '4200');
-  delete process.env.AINJ_MCP_MAIN_PORT;
+  Reflect.deleteProperty(process.env, 'AINJ_MCP_MAIN_PORT');
 });
 
 test('loadEnv does not overwrite an already-set env var', (t) => {
@@ -39,7 +39,7 @@ test('loadEnv does not overwrite an already-set env var', (t) => {
   loadEnv(dir);
 
   assert.equal(process.env.AINJ_ENV_TEST_B, 'original');
-  delete process.env.AINJ_ENV_TEST_B;
+  Reflect.deleteProperty(process.env, 'AINJ_ENV_TEST_B');
 });
 
 test('loadEnv does not throw when .env file does not exist', () => {
@@ -49,7 +49,7 @@ test('loadEnv does not throw when .env file does not exist', () => {
 test('loadEnv skips blank lines and # comment lines', (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'ainj-env-'));
   t.after(() => rmSync(dir, { recursive: true }));
-  delete process.env.AINJ_ENV_TEST_C;
+  Reflect.deleteProperty(process.env, 'AINJ_ENV_TEST_C');
 
   writeFileSync(
     join(dir, '.env'),
@@ -58,7 +58,7 @@ test('loadEnv skips blank lines and # comment lines', (t) => {
   loadEnv(dir);
 
   assert.equal(process.env.AINJ_ENV_TEST_C, 'value');
-  delete process.env.AINJ_ENV_TEST_C;
+  Reflect.deleteProperty(process.env, 'AINJ_ENV_TEST_C');
 });
 
 test('loadEnv does not throw when called with no arguments', () => {

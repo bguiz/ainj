@@ -92,7 +92,11 @@ describe('resolveBinary()', () => {
   // strategy 1 always succeeds in this environment, so we skip them here.
   it(
     'falls back to `which injectived` when strategy 1 (injective-core) fails',
-    { skip: isInjectiveCoreInstalled ? 'injective-core installed, strategy 1 always succeeds' : false },
+    {
+      skip: isInjectiveCoreInstalled
+        ? 'injective-core installed, strategy 1 always succeeds'
+        : false,
+    },
     (t) => {
       const saved = process.env.PATH;
       process.env.PATH = `${tmpBinDir}:${saved}`;
@@ -108,7 +112,11 @@ describe('resolveBinary()', () => {
 
   it(
     "throws with a message naming 'injective-core' when both strategies fail",
-    { skip: isInjectiveCoreInstalled ? 'injective-core installed, strategy 1 always succeeds' : false },
+    {
+      skip: isInjectiveCoreInstalled
+        ? 'injective-core installed, strategy 1 always succeeds'
+        : false,
+    },
     (t) => {
       const saved = process.env.PATH;
       process.env.PATH = '/nonexistent-ainj-test-path';

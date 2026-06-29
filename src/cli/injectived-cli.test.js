@@ -1,12 +1,12 @@
 // @integration tests are marked below and skipped when injective-core is absent
 
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import EventEmitter from 'node:events';
 import { createRequire } from 'node:module';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-import { join, dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { after, before, describe, it, mock } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 // ---------------------------------------------------------------------------
 // mock.module() must be called inside the test runner context (before hook),
@@ -152,7 +152,9 @@ describe('run() — integration', () => {
     { skip: isInjectiveCoreInstalled ? false : 'injective-core not installed' },
     () => {
       const cliIndex = fileURLToPath(new URL('../cli/index.js', import.meta.url));
-      const result = spawnSync(process.execPath, [cliIndex, 'cli', 'version'], { encoding: 'utf8' });
+      const result = spawnSync(process.execPath, [cliIndex, 'cli', 'version'], {
+        encoding: 'utf8',
+      });
 
       assert.equal(result.status, 0);
       assert.ok(result.stdout.length > 0);
@@ -164,7 +166,9 @@ describe('run() — integration', () => {
     { skip: isInjectiveCoreInstalled ? false : 'injective-core not installed' },
     () => {
       const cliIndex = fileURLToPath(new URL('../cli/index.js', import.meta.url));
-      const result = spawnSync(process.execPath, [cliIndex, 'injectived', 'version'], { encoding: 'utf8' });
+      const result = spawnSync(process.execPath, [cliIndex, 'injectived', 'version'], {
+        encoding: 'utf8',
+      });
 
       assert.equal(result.status, 0);
       assert.ok(result.stdout.length > 0);

@@ -38,10 +38,7 @@ describe('skills-cli run() — skill names', () => {
   });
 
   it('ignores non-directory entries', async () => {
-    const entries = [
-      fakeDir('my-skill'),
-      { name: 'README.md', isDirectory: () => false },
-    ];
+    const entries = [fakeDir('my-skill'), { name: 'README.md', isDirectory: () => false }];
     const deps = mkDeps(entries);
     await run([], deps);
     assert.deepEqual(deps.lines, ['my-skill']);

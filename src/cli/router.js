@@ -1,4 +1,13 @@
-const SUBCOMMANDS = new Set(['mcp', 'cli', 'injectived', 'install', 'update', 'status', 'skills', 'version']);
+const SUBCOMMANDS = new Set([
+  'mcp',
+  'cli',
+  'injectived',
+  'install',
+  'update',
+  'status',
+  'skills',
+  'version',
+]);
 
 export function route(argv) {
   if (argv.length === 0) return { action: 'no-args' };
