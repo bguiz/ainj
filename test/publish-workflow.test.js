@@ -13,20 +13,20 @@ function readWorkflow() {
 }
 
 // ---------------------------------------------------------------------------
-// Cycle 1 — file exists
+// Cycle 1: file exists
 // ---------------------------------------------------------------------------
 
-describe('publish.yml — file exists', () => {
+describe('publish.yml: file exists', () => {
   it('exists at .github/workflows/publish.yml', () => {
     assert.doesNotThrow(() => readWorkflow(), 'publish.yml should exist and be readable');
   });
 });
 
 // ---------------------------------------------------------------------------
-// Cycle 2 — release/published trigger
+// Cycle 2: release/published trigger
 // ---------------------------------------------------------------------------
 
-describe('publish.yml — trigger', () => {
+describe('publish.yml: trigger', () => {
   it('triggers on release event', () => {
     const content = readWorkflow();
     assert.ok(content.includes('release:'), 'must have release: trigger');
@@ -39,13 +39,18 @@ describe('publish.yml — trigger', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cycle 3 — setup-node@v4 with registry-url
+// Cycle 3: setup-node@v4 with registry-url
 // ---------------------------------------------------------------------------
 
-describe('publish.yml — Node setup', () => {
+describe('publish.yml: Node setup', () => {
   it('uses actions/setup-node@v4', () => {
     const content = readWorkflow();
     assert.ok(content.includes('actions/setup-node@v4'), 'must use actions/setup-node@v4');
+  });
+
+  it('uses Node 24 to match package engines', () => {
+    const content = readWorkflow();
+    assert.ok(content.includes("node-version: '24'"), 'must use Node 24');
   });
 
   it('sets registry-url to https://registry.npmjs.org', () => {
@@ -58,10 +63,10 @@ describe('publish.yml — Node setup', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cycle 4 — npm ci
+// Cycle 4: npm ci
 // ---------------------------------------------------------------------------
 
-describe('publish.yml — npm ci', () => {
+describe('publish.yml: npm ci', () => {
   it('runs npm ci', () => {
     const content = readWorkflow();
     assert.ok(content.includes('npm ci'), 'must run npm ci');
@@ -78,13 +83,40 @@ describe('publish.yml — npm ci', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cycle 5 — npm publish with NODE_AUTH_TOKEN
+// Cycle 5: tests and lint before publish
 // ---------------------------------------------------------------------------
 
-describe('publish.yml — npm publish', () => {
+describe('publish.yml: validation before publish', () => {
+  it('runs npm test before npm publish', () => {
+    const content = readWorkflow();
+    const testIndex = content.indexOf('npm test');
+    const publishIndex = content.indexOf('npm publish');
+    assert.ok(testIndex !== -1, 'npm test not found');
+    assert.ok(publishIndex !== -1, 'npm publish not found');
+    assert.ok(testIndex < publishIndex, 'npm test must appear before npm publish');
+  });
+
+  it('runs npm run lint before npm publish', () => {
+    const content = readWorkflow();
+    const lintIndex = content.indexOf('npm run lint');
+    const publishIndex = content.indexOf('npm publish');
+    assert.ok(lintIndex !== -1, 'npm run lint not found');
+    assert.ok(publishIndex !== -1, 'npm publish not found');
+    assert.ok(lintIndex < publishIndex, 'npm run lint must appear before npm publish');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Cycle 6: npm publish with NODE_AUTH_TOKEN
+// ---------------------------------------------------------------------------
+
+describe('publish.yml: npm publish', () => {
   it('calls npm publish --access public', () => {
     const content = readWorkflow();
-    assert.ok(content.includes('npm publish --access public'), 'must call npm publish --access public');
+    assert.ok(
+      content.includes('npm publish --access public'),
+      'must call npm publish --access public',
+    );
   });
 
   it('sets NODE_AUTH_TOKEN from secrets.NPM_TOKEN', () => {

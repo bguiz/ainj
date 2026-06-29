@@ -8,7 +8,16 @@ try {
   const probe = await fetch('https://docs.injective.network/mcp', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'probe', version: '0.0.1' } } }),
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'initialize',
+      params: {
+        protocolVersion: '2024-11-05',
+        capabilities: {},
+        clientInfo: { name: 'probe', version: '0.0.1' },
+      },
+    }),
     signal: AbortSignal.timeout(3000),
   });
   docsNetworkAvailable = probe.ok || probe.status === 400;
@@ -80,7 +89,9 @@ describe('buildProxyServer() — error propagation', () => {
   it('rejects when createOutboundClient rejects', async () => {
     const boom = new Error('network failure');
     const savedImpl = createOutboundClientImpl;
-    createOutboundClientImpl = async () => { throw boom; };
+    createOutboundClientImpl = async () => {
+      throw boom;
+    };
     createOutboundClientMock.mock.resetCalls();
 
     try {
@@ -202,7 +213,7 @@ describe('startHttp() — port selection', () => {
     const saved = process.env.AINJ_MCP_DOCS_PORT;
     process.env.AINJ_MCP_DOCS_PORT = '19902';
     t.after(() => {
-      if (saved === undefined) delete process.env.AINJ_MCP_DOCS_PORT;
+      if (saved === undefined) Reflect.deleteProperty(process.env, 'AINJ_MCP_DOCS_PORT');
       else process.env.AINJ_MCP_DOCS_PORT = saved;
     });
 
@@ -214,7 +225,7 @@ describe('startHttp() — port selection', () => {
 
   it('defaults to port 3002 when AINJ_MCP_DOCS_PORT is unset and no port given', async (t) => {
     const saved = process.env.AINJ_MCP_DOCS_PORT;
-    delete process.env.AINJ_MCP_DOCS_PORT;
+    Reflect.deleteProperty(process.env, 'AINJ_MCP_DOCS_PORT');
     t.after(() => {
       if (saved !== undefined) process.env.AINJ_MCP_DOCS_PORT = saved;
     });
@@ -240,7 +251,9 @@ describe('startHttp() — integration', () => {
       t.after(() => new Promise((r) => server.close(r)));
 
       const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
-      const { StreamableHTTPClientTransport } = await import('@modelcontextprotocol/sdk/client/streamableHttp.js');
+      const { StreamableHTTPClientTransport } = await import(
+        '@modelcontextprotocol/sdk/client/streamableHttp.js'
+      );
       const transport = new StreamableHTTPClientTransport(new URL('http://127.0.0.1:19903/mcp'));
       const client = new Client({ name: 'integration-test', version: '0.0.1' });
       await client.connect(transport);

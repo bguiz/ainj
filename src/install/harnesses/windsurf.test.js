@@ -2,14 +2,18 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { describe, it, before, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 
 import { write } from './windsurf.js';
 
 function useTmpDir() {
   let tmpDir;
-  before(() => { tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ainj-test-')); });
-  after(() => { fs.rmSync(tmpDir, { recursive: true }); });
+  before(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ainj-test-'));
+  });
+  after(() => {
+    fs.rmSync(tmpDir, { recursive: true });
+  });
   return { dir: () => tmpDir };
 }
 
@@ -20,7 +24,10 @@ describe('windsurf write()', () => {
     write('global', 3001, 3002, { homeDir: dir() });
     const filePath = path.join(dir(), '.codeium', 'windsurf', 'mcp_config.json');
     assert.ok(fs.existsSync(filePath), 'config file should exist');
-    assert.ok(filePath.endsWith('.codeium/windsurf/mcp_config.json'), 'path should end with .codeium/windsurf/mcp_config.json');
+    assert.ok(
+      filePath.endsWith('.codeium/windsurf/mcp_config.json'),
+      'path should end with .codeium/windsurf/mcp_config.json',
+    );
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     assert.ok(data.mcpServers['ainj-main']);
     assert.ok(data.mcpServers['ainj-docs']);
@@ -31,7 +38,10 @@ describe('windsurf write()', () => {
   it('merges into existing config without removing unrelated keys', () => {
     const filePath = path.join(dir(), '.codeium', 'windsurf', 'mcp_config.json');
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, JSON.stringify({ mcpServers: { 'other-server': { command: 'qux' } }, version: 2 }));
+    fs.writeFileSync(
+      filePath,
+      JSON.stringify({ mcpServers: { 'other-server': { command: 'qux' } }, version: 2 }),
+    );
     write('global', 3001, 3002, { homeDir: dir() });
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     assert.ok(data.mcpServers['other-server'], 'unrelated server should be preserved');
@@ -43,7 +53,7 @@ describe('windsurf write()', () => {
     write('global', 7001, 7002, { homeDir: dir() });
     const filePath = path.join(dir(), '.codeium', 'windsurf', 'mcp_config.json');
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    assert.equal(data.mcpServers['ainj-main-http'].url, 'http://localhost:7001');
-    assert.equal(data.mcpServers['ainj-docs-http'].url, 'http://localhost:7002');
+    assert.equal(data.mcpServers['ainj-main-http'].url, 'http://localhost:7001/mcp');
+    assert.equal(data.mcpServers['ainj-docs-http'].url, 'http://localhost:7002/mcp');
   });
 });

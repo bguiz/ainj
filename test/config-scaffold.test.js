@@ -36,7 +36,7 @@ describe('package.json', () => {
     assert.equal(pkg.main, 'src/lib/ainj.js');
   });
 
-  it('has required scripts: test, lint, sync:skills, postinstall', () => {
+  it('has required scripts: test, lint, sync:skills', () => {
     const { scripts } = readJson('package.json');
     assert.ok(
       scripts.test.startsWith('node --test'),
@@ -44,7 +44,19 @@ describe('package.json', () => {
     );
     assert.equal(typeof scripts.lint, 'string');
     assert.equal(typeof scripts['sync:skills'], 'string');
-    assert.equal(typeof scripts.postinstall, 'string');
+  });
+
+  it('does not run an automatic postinstall installer', () => {
+    const { scripts } = readJson('package.json');
+    assert.equal(scripts.postinstall, undefined);
+  });
+
+  it('pins @injective-agent/core to an immutable commit', () => {
+    const { dependencies } = readJson('package.json');
+    assert.match(
+      dependencies?.['@injective-agent/core'],
+      /^github:InjectiveLabs\/mcp-server#[0-9a-f]{40}$/i,
+    );
   });
 
   it('has @clack/prompts in dependencies', () => {
@@ -60,9 +72,9 @@ describe('package.json', () => {
 });
 
 describe('ainj.config.json', () => {
-  it('contains { skillsRef: "master" }', () => {
+  it('pins skillsRef to an immutable commit', () => {
     const config = readJson('ainj.config.json');
-    assert.equal(config.skillsRef, 'master');
+    assert.match(config.skillsRef, /^[0-9a-f]{40}$/i);
   });
 });
 
@@ -114,5 +126,11 @@ describe('.gitignore', () => {
   it('excludes coverage/', () => {
     const lines = readText('.gitignore').split('\n');
     assert.ok(lines.includes('coverage/'), 'coverage/ not in .gitignore');
+  });
+
+  it('excludes local agent operation files', () => {
+    const lines = readText('.gitignore').split('\n');
+    assert.ok(lines.includes('CLAUDE.md'), 'CLAUDE.md not in .gitignore');
+    assert.ok(lines.includes('DEPLOYMENT.md'), 'DEPLOYMENT.md not in .gitignore');
   });
 });
