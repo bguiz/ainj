@@ -1,9 +1,9 @@
-import { cp, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { cp, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 const thisDir = import.meta.dirname;
 
@@ -18,16 +18,11 @@ export async function syncSkills({
   _cwd = () => process.cwd(),
 } = {}) {
   console.log('Syncing skills...');
-  const configText = await _readFile(
-    path.join(thisDir, '..', 'ainj.config.json'),
-    'utf8',
-  );
+  const configText = await _readFile(path.join(thisDir, '..', 'ainj.config.json'), 'utf8');
   const config = JSON.parse(configText);
 
   if (!config.skillsRef) {
-    throw new Error(
-      'ainj.config.json is missing required field: skillsRef',
-    );
+    throw new Error('ainj.config.json is missing required field: skillsRef');
   }
 
   const { skillsRef } = config;
@@ -40,15 +35,10 @@ export async function syncSkills({
   const tmpDir = await _mkdtemp(path.join(os.tmpdir(), 'ainj-skills-'));
 
   try {
-    const result = _spawn(
-      'git',
-      ['clone', '--depth=1', '--branch', skillsRef, repoUrl, tmpDir],
-      { stdio: 'pipe' },
-    );
-    if (result.status !== 0) {
-      const stderr = result.stderr?.toString?.() ?? '';
-      throw new Error(`git clone failed (exit ${result.status}): ${stderr}`);
-    }
+    runGit(['init', tmpDir], 'init');
+    runGit(['-C', tmpDir, 'remote', 'add', 'origin', repoUrl], 'remote add');
+    runGit(['-C', tmpDir, 'fetch', '--depth=1', 'origin', skillsRef], 'fetch');
+    runGit(['-C', tmpDir, 'checkout', '--detach', 'FETCH_HEAD'], 'checkout');
 
     const agentsSkillsDir = path.join(thisDir, '../.agents/skills');
     await _rm(agentsSkillsDir, { recursive: true, force: true });
@@ -59,6 +49,14 @@ export async function syncSkills({
     console.log('skills copied to:', agentsSkillsDir);
   } finally {
     await _rm(tmpDir, { recursive: true, force: true });
+  }
+
+  function runGit(args, action) {
+    const result = _spawn('git', args, { stdio: 'pipe' });
+    if (result.status !== 0) {
+      const stderr = result.stderr?.toString?.() ?? '';
+      throw new Error(`git ${action} failed (exit ${result.status}): ${stderr}`);
+    }
   }
 }
 

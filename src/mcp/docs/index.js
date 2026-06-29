@@ -1,5 +1,5 @@
-import { createServer as createHttpServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
+import { createServer as createHttpServer } from 'node:http';
 import { createOutboundClient } from './client.js';
 
 export async function buildProxyServer() {
@@ -7,7 +7,9 @@ export async function buildProxyServer() {
   const { tools } = await remote.listTools();
 
   const { Server } = await import('@modelcontextprotocol/sdk/server/index.js');
-  const { ListToolsRequestSchema, CallToolRequestSchema } = await import('@modelcontextprotocol/sdk/types.js');
+  const { ListToolsRequestSchema, CallToolRequestSchema } = await import(
+    '@modelcontextprotocol/sdk/types.js'
+  );
 
   function makeServer() {
     const server = new Server(
@@ -27,9 +29,15 @@ export async function buildProxyServer() {
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
     let raw = '';
-    req.on('data', (chunk) => { raw += chunk; });
+    req.on('data', (chunk) => {
+      raw += chunk;
+    });
     req.on('end', () => {
-      try { resolve(JSON.parse(raw)); } catch { resolve(undefined); }
+      try {
+        resolve(JSON.parse(raw));
+      } catch {
+        resolve(undefined);
+      }
     });
     req.on('error', reject);
   });
@@ -39,7 +47,9 @@ export async function startHttp(port) {
   const effectivePort = port ?? Number(process.env.AINJ_MCP_DOCS_PORT ?? 3002);
   const { makeServer, remote } = await buildProxyServer();
 
-  const { StreamableHTTPServerTransport } = await import('@modelcontextprotocol/sdk/server/streamableHttp.js');
+  const { StreamableHTTPServerTransport } = await import(
+    '@modelcontextprotocol/sdk/server/streamableHttp.js'
+  );
 
   const sessions = new Map();
 
@@ -84,14 +94,17 @@ export async function startHttp(port) {
   });
 
   await new Promise((resolve, reject) => {
-    httpServer.listen(effectivePort, resolve);
+    httpServer.listen(effectivePort, '127.0.0.1', resolve);
     httpServer.on('error', reject);
   });
 
   const _close = httpServer.close.bind(httpServer);
   httpServer.close = (cb) => {
     _close((err) => {
-      remote.close?.().catch(() => {}).then(() => cb?.(err));
+      remote
+        .close?.()
+        .catch(() => {})
+        .then(() => cb?.(err));
     });
     return httpServer;
   };
