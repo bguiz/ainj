@@ -1,6 +1,6 @@
 {
   "name": "@bguiz/ainj",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "An AI SDK for Injective",
   "keywords": ["injective", "AI", "agent-skills", "skills", "MCP", "CLI", "SDK"],
   "engines": {
